@@ -339,8 +339,8 @@ select option { background: var(--bg); }
 @keyframes slideIn { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform: none; } }
 `;
 
-const DIFFICULTIES = [1, 2, 3, 4, 5];
-const DIFF_LABELS = ["", "Easy", "Medium", "Hard", "Expert", "Insane"];
+const DIFFICULTIES = [1,2,3,4,5];
+const DIFF_LABELS = ["","Easy","Medium","Hard","Expert","Insane"];
 
 const emptyLevel = (num) => ({
   id: Date.now() + num,
@@ -363,9 +363,7 @@ function generateMarkdown(level) {
   lines.push(`# Level ${level.number}${level.name ? ` — ${level.name}` : ""}`);
   lines.push(``);
   if (level.category || level.difficulty) {
-    lines.push(
-      `> **Category:** ${level.category || "—"} &nbsp;|&nbsp; **Difficulty:** ${diff}`,
-    );
+    lines.push(`> **Category:** ${level.category || "—"} &nbsp;|&nbsp; **Difficulty:** ${diff}`);
     lines.push(``);
   }
   if (level.objective) {
@@ -414,7 +412,7 @@ function generateMarkdown(level) {
 }
 
 function generateGitScript(levels, repoName, branch) {
-  const done = levels.filter((l) => l.status !== "empty");
+  const done = levels.filter(l => l.status !== "empty");
   const lines = [];
   lines.push(`#!/bin/bash`);
   lines.push(`# CTF Writeup — Git Push Script`);
@@ -430,16 +428,8 @@ function generateGitScript(levels, repoName, branch) {
   lines.push(`fi`);
   lines.push(``);
   lines.push(`# 2. Create writeup files`);
-  done.forEach((l) => {
-    const fname = `level-${String(l.number).padStart(2, "0")}${
-      l.name
-        ? "-" +
-          l.name
-            .toLowerCase()
-            .replace(/\s+/g, "-")
-            .replace(/[^a-z0-9-]/g, "")
-        : ""
-    }.md`;
+  done.forEach(l => {
+    const fname = `level-${String(l.number).padStart(2,"0")}${l.name ? "-" + l.name.toLowerCase().replace(/\s+/g,"-").replace(/[^a-z0-9-]/g,"") : ""}.md`;
     lines.push(`cat > "${fname}" << 'HEREDOC'`);
     lines.push(generateMarkdown(l));
     lines.push(`HEREDOC`);
@@ -447,16 +437,12 @@ function generateGitScript(levels, repoName, branch) {
   });
   lines.push(`# 3. Stage and commit`);
   lines.push(`git add .`);
-  lines.push(
-    `git commit -m "writeup: add level ${done.map((l) => l.number).join(", ")} solutions"`,
-  );
+  lines.push(`git commit -m "writeup: add level ${done.map(l=>l.number).join(", ")} solutions"`);
   lines.push(``);
   lines.push(`# 4. Push`);
   lines.push(`git push -u origin $BRANCH`);
   lines.push(``);
-  lines.push(
-    `echo "✅ Done! Check your repo at https://github.com/YOUR_USERNAME/$REPO"`,
-  );
+  lines.push(`echo "✅ Done! Check your repo at https://github.com/YOUR_USERNAME/$REPO"`);
   return lines.join("\n");
 }
 
@@ -474,34 +460,30 @@ export default function App() {
     setTimeout(() => setToast(null), 2000);
   };
 
-  const selected = levels.find((l) => l.id === selectedId);
+  const selected = levels.find(l => l.id === selectedId);
 
   const updateLevel = (field, val) => {
-    setLevels((prev) =>
-      prev.map((l) => {
-        if (l.id !== selectedId) return l;
-        const updated = { ...l, [field]: val };
-        // auto-set status
-        const filled =
-          updated.thoughts || updated.commands || updated.learnings;
-        const complete =
-          updated.flag || (updated.learnings && updated.commands);
-        updated.status = complete ? "done" : filled ? "wip" : "empty";
-        return updated;
-      }),
-    );
+    setLevels(prev => prev.map(l => {
+      if (l.id !== selectedId) return l;
+      const updated = { ...l, [field]: val };
+      // auto-set status
+      const filled = updated.thoughts || updated.commands || updated.learnings;
+      const complete = updated.flag || (updated.learnings && updated.commands);
+      updated.status = complete ? "done" : filled ? "wip" : "empty";
+      return updated;
+    }));
   };
 
   const addLevel = () => {
-    const nums = levels.map((l) => l.number);
+    const nums = levels.map(l => l.number);
     const next = Math.max(...nums) + 1;
     const newL = emptyLevel(next);
-    setLevels((prev) => [...prev, newL]);
+    setLevels(prev => [...prev, newL]);
     setSelectedId(newL.id);
   };
 
   const removeLevel = (id) => {
-    const remaining = levels.filter((l) => l.id !== id);
+    const remaining = levels.filter(l => l.id !== id);
     if (!remaining.length) return;
     setLevels(remaining);
     if (selectedId === id) setSelectedId(remaining[0].id);
@@ -521,26 +503,14 @@ export default function App() {
       <div className="app">
         {/* Header */}
         <div className="header">
-          <div className="header-title">
-            CTF WRITEUP GENERATOR <span className="blink">_</span>
-          </div>
+          <div className="header-title">CTF WRITEUP GENERATOR <span className="blink">_</span></div>
           <div className="header-sub">// document → commit → push → pwned</div>
         </div>
 
         {/* Main tabs */}
         <div className="tabs">
-          {[
-            ["edit", "✎ Write"],
-            ["preview", "◉ Preview MD"],
-            ["git", "⬆ Git Script"],
-          ].map(([key, label]) => (
-            <button
-              key={key}
-              className={`tab${tab === key ? " active" : ""}`}
-              onClick={() => setTab(key)}
-            >
-              {label}
-            </button>
+          {[["edit","✎ Write"], ["preview","◉ Preview MD"], ["git","⬆ Git Script"]].map(([key, label]) => (
+            <button key={key} className={`tab${tab===key?" active":""}`} onClick={() => setTab(key)}>{label}</button>
           ))}
         </div>
 
@@ -551,35 +521,19 @@ export default function App() {
             <div className="card">
               <div className="card-header">
                 <span className="card-title">// Levels</span>
-                <button
-                  className="btn btn-ghost"
-                  style={{ fontSize: "11px", padding: "6px 14px" }}
-                  onClick={addLevel}
-                >
-                  + Add Level
-                </button>
+                <button className="btn btn-ghost" style={{fontSize:"11px",padding:"6px 14px"}} onClick={addLevel}>+ Add Level</button>
               </div>
               <div className="level-list">
-                {levels.map((l) => (
+                {levels.map(l => (
                   <div
                     key={l.id}
-                    className={`level-item${l.id === selectedId ? " selected" : ""}`}
+                    className={`level-item${l.id===selectedId?" selected":""}`}
                     onClick={() => setSelectedId(l.id)}
                   >
-                    <span className="level-num">
-                      {String(l.number).padStart(2, "0")}
-                    </span>
-                    <span className="level-name">
-                      {l.name || (
-                        <span style={{ color: "var(--muted)" }}>unnamed</span>
-                      )}
-                    </span>
+                    <span className="level-num">{String(l.number).padStart(2,"0")}</span>
+                    <span className="level-name">{l.name || <span style={{color:"var(--muted)"}}>unnamed</span>}</span>
                     <span className={`level-status ${l.status}`}>
-                      {l.status === "done"
-                        ? "✓ DONE"
-                        : l.status === "wip"
-                          ? "~ WIP"
-                          : "○ EMPTY"}
+                      {l.status==="done"?"✓ DONE":l.status==="wip"?"~ WIP":"○ EMPTY"}
                     </span>
                   </div>
                 ))}
@@ -592,75 +546,40 @@ export default function App() {
                 <div className="card-header">
                   <span className="card-title">// Level {selected.number}</span>
                   {levels.length > 1 && (
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => removeLevel(selected.id)}
-                    >
-                      ✕ Remove
-                    </button>
+                    <button className="btn btn-danger" onClick={() => removeLevel(selected.id)}>✕ Remove</button>
                   )}
                 </div>
 
                 <div className="row">
                   <div className="field">
                     <label>Level Number</label>
-                    <input
-                      type="number"
-                      value={selected.number}
-                      onChange={(e) =>
-                        updateLevel("number", parseInt(e.target.value) || 0)
-                      }
-                    />
+                    <input type="number" value={selected.number} onChange={e => updateLevel("number", parseInt(e.target.value)||0)} />
                   </div>
                   <div className="field">
                     <label>Level Name / Title</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. bandit0, sanity check..."
-                      value={selected.name}
-                      onChange={(e) => updateLevel("name", e.target.value)}
-                    />
+                    <input type="text" placeholder="e.g. bandit0, sanity check..." value={selected.name} onChange={e => updateLevel("name", e.target.value)} />
                   </div>
                 </div>
 
                 <div className="row">
                   <div className="field">
                     <label>Category</label>
-                    <input
-                      type="text"
-                      placeholder="e.g. web, pwn, crypto, misc"
-                      value={selected.category}
-                      onChange={(e) => updateLevel("category", e.target.value)}
-                    />
+                    <input type="text" placeholder="e.g. web, pwn, crypto, misc" value={selected.category} onChange={e => updateLevel("category", e.target.value)} />
                   </div>
                   <div className="field">
                     <label>Difficulty</label>
                     <div className="diff-row">
-                      {DIFFICULTIES.map((d) => (
+                      {DIFFICULTIES.map(d => (
                         <div
                           key={d}
-                          className={`diff-dot${selected.difficulty === d ? " active" : ""}`}
+                          className={`diff-dot${selected.difficulty===d?" active":""}`}
                           data-d={d}
                           title={DIFF_LABELS[d]}
-                          onClick={() =>
-                            updateLevel(
-                              "difficulty",
-                              d === selected.difficulty ? 0 : d,
-                            )
-                          }
+                          onClick={() => updateLevel("difficulty", d === selected.difficulty ? 0 : d)}
                         />
                       ))}
-                      <span
-                        style={{
-                          fontSize: "11px",
-                          color: "var(--muted)",
-                          marginLeft: 4,
-                          alignSelf: "center",
-                        }}
-                      >
-                        {selected.difficulty
-                          ? DIFF_LABELS[selected.difficulty]
-                          : "pick"}
+                      <span style={{fontSize:"11px",color:"var(--muted)",marginLeft:4,alignSelf:"center"}}>
+                        {selected.difficulty ? DIFF_LABELS[selected.difficulty] : "pick"}
                       </span>
                     </div>
                   </div>
@@ -668,63 +587,32 @@ export default function App() {
 
                 <div className="field">
                   <label>Objective / Challenge Description</label>
-                  <textarea
-                    rows={2}
-                    placeholder="What does the challenge ask you to do?"
-                    value={selected.objective}
-                    onChange={(e) => updateLevel("objective", e.target.value)}
-                  />
+                  <textarea rows={2} placeholder="What does the challenge ask you to do?" value={selected.objective} onChange={e => updateLevel("objective", e.target.value)} />
                 </div>
 
                 <div className="field">
                   <label>Initial Thoughts</label>
-                  <textarea
-                    rows={3}
-                    placeholder="What was your first read on this? What did you notice?"
-                    value={selected.thoughts}
-                    onChange={(e) => updateLevel("thoughts", e.target.value)}
-                  />
+                  <textarea rows={3} placeholder="What was your first read on this? What did you notice?" value={selected.thoughts} onChange={e => updateLevel("thoughts", e.target.value)} />
                 </div>
 
                 <div className="field">
                   <label>Approach / Steps Taken</label>
-                  <textarea
-                    rows={4}
-                    placeholder="How did you go about solving it? What did you try?"
-                    value={selected.approach}
-                    onChange={(e) => updateLevel("approach", e.target.value)}
-                  />
+                  <textarea rows={4} placeholder="How did you go about solving it? What did you try?" value={selected.approach} onChange={e => updateLevel("approach", e.target.value)} />
                 </div>
 
                 <div className="field">
                   <label>Commands Used</label>
-                  <textarea
-                    rows={5}
-                    placeholder="ls -la&#10;cat readme&#10;ssh bandit1@localhost -p 2220"
-                    value={selected.commands}
-                    onChange={(e) => updateLevel("commands", e.target.value)}
-                    style={{ fontFamily: "var(--font-mono)", color: "#39ff14" }}
-                  />
+                  <textarea rows={5} placeholder="ls -la&#10;cat readme&#10;ssh bandit1@localhost -p 2220" value={selected.commands} onChange={e => updateLevel("commands", e.target.value)} style={{fontFamily:"var(--font-mono)",color:"#39ff14"}} />
                 </div>
 
                 <div className="field">
                   <label>What I Learned</label>
-                  <textarea
-                    rows={3}
-                    placeholder="Key takeaways, new tools, techniques, concepts..."
-                    value={selected.learnings}
-                    onChange={(e) => updateLevel("learnings", e.target.value)}
-                  />
+                  <textarea rows={3} placeholder="Key takeaways, new tools, techniques, concepts..." value={selected.learnings} onChange={e => updateLevel("learnings", e.target.value)} />
                 </div>
 
                 <div className="field">
                   <label>Flag (optional)</label>
-                  <input
-                    type="text"
-                    placeholder="CTF{...} or the password for next level"
-                    value={selected.flag}
-                    onChange={(e) => updateLevel("flag", e.target.value)}
-                  />
+                  <input type="text" placeholder="CTF{...} or the password for next level" value={selected.flag} onChange={e => updateLevel("flag", e.target.value)} />
                 </div>
               </div>
             )}
@@ -734,38 +622,25 @@ export default function App() {
         {/* ─── PREVIEW TAB ─── */}
         {tab === "preview" && (
           <div>
-            <div className="tabs" style={{ marginBottom: 16 }}>
-              {levels.map((l) => (
-                <button
-                  key={l.id}
-                  className={`tab${l.id === selectedId ? " active" : ""}`}
-                  onClick={() => setSelectedId(l.id)}
-                >
+            <div className="tabs" style={{marginBottom:16}}>
+              {levels.map(l => (
+                <button key={l.id} className={`tab${l.id===selectedId?" active":""}`} onClick={() => setSelectedId(l.id)}>
                   L{l.number}
                 </button>
               ))}
             </div>
             <div className="card">
               <div className="card-header">
-                <span className="card-title">
-                  // Markdown Output — level-
-                  {String(selected?.number || 0).padStart(2, "0")}.md
-                </span>
+                <span className="card-title">// Markdown Output — level-{String(selected?.number||0).padStart(2,"0")}.md</span>
               </div>
-              <div className="output-block" style={{ position: "relative" }}>
-                <button className="copy-btn" onClick={() => copyText(mdOutput)}>
-                  COPY
-                </button>
+              <div className="output-block" style={{position:"relative"}}>
+                <button className="copy-btn" onClick={() => copyText(mdOutput)}>COPY</button>
                 {mdOutput.split("\n").map((line, i) => {
                   let color = "var(--text)";
                   if (line.startsWith("#")) color = "var(--amber)";
                   else if (line.startsWith("```")) color = "var(--green-dim)";
                   else if (line.startsWith(">")) color = "var(--muted)";
-                  return (
-                    <div key={i} style={{ color }}>
-                      {line || " "}
-                    </div>
-                  );
+                  return <div key={i} style={{color}}>{line || " "}</div>;
                 })}
               </div>
             </div>
@@ -782,122 +657,58 @@ export default function App() {
               <div className="row">
                 <div className="field">
                   <label>Repository Name</label>
-                  <input
-                    value={repoName}
-                    onChange={(e) => setRepoName(e.target.value)}
-                    placeholder="ctf-writeups"
-                  />
+                  <input value={repoName} onChange={e => setRepoName(e.target.value)} placeholder="ctf-writeups" />
                 </div>
                 <div className="field">
                   <label>Branch</label>
-                  <input
-                    value={branch}
-                    onChange={(e) => setBranch(e.target.value)}
-                    placeholder="main"
-                  />
+                  <input value={branch} onChange={e => setBranch(e.target.value)} placeholder="main" />
                 </div>
               </div>
-              <div
-                style={{
-                  fontSize: "11px",
-                  color: "var(--muted)",
-                  marginTop: 4,
-                }}
-              >
-                Replace{" "}
-                <span style={{ color: "var(--amber)" }}>YOUR_USERNAME</span> in
-                the script with your actual GitHub username.
+              <div style={{fontSize:"11px",color:"var(--muted)",marginTop:4}}>
+                Replace <span style={{color:"var(--amber)"}}>YOUR_USERNAME</span> in the script with your actual GitHub username.
               </div>
             </div>
 
             <div className="card">
               <div className="card-header">
                 <span className="card-title">// push.sh</span>
-                <span className="card-badge">
-                  {levels.filter((l) => l.status !== "empty").length} LEVEL(S)
-                </span>
+                <span className="card-badge">{levels.filter(l=>l.status!=="empty").length} LEVEL(S)</span>
               </div>
-              <div className="output-block" style={{ position: "relative" }}>
-                <button
-                  className="copy-btn"
-                  onClick={() => copyText(gitOutput)}
-                >
-                  COPY
-                </button>
+              <div className="output-block" style={{position:"relative"}}>
+                <button className="copy-btn" onClick={() => copyText(gitOutput)}>COPY</button>
                 {gitOutput.split("\n").map((line, i) => {
                   let color = "var(--text)";
                   if (line.startsWith("#")) color = "var(--muted)";
-                  else if (line.match(/^(git|cat|echo|if|fi|REPO|BRANCH)/))
-                    color = "var(--green)";
-                  else if (line.startsWith("HEREDOC") || line === "HEREDOC")
-                    color = "var(--green-dim)";
-                  return (
-                    <div
-                      key={i}
-                      style={{ color, fontFamily: "var(--font-mono)" }}
-                    >
-                      {line || " "}
-                    </div>
-                  );
+                  else if (line.match(/^(git|cat|echo|if|fi|REPO|BRANCH)/)) color = "var(--green)";
+                  else if (line.startsWith("HEREDOC") || line === "HEREDOC") color = "var(--green-dim)";
+                  return <div key={i} style={{color, fontFamily:"var(--font-mono)"}}>{line || " "}</div>;
                 })}
               </div>
-              <div className="btn-row" style={{ marginTop: 16 }}>
-                <button
-                  className="btn btn-primary"
-                  onClick={() => {
-                    const blob = new Blob([gitOutput], { type: "text/plain" });
-                    const a = document.createElement("a");
-                    a.href = URL.createObjectURL(blob);
-                    a.download = "push.sh";
-                    a.click();
-                    showToast("DOWNLOADED");
-                  }}
-                >
-                  ⬇ Download push.sh
-                </button>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => copyText(gitOutput)}
-                >
-                  Copy Script
-                </button>
+              <div className="btn-row" style={{marginTop:16}}>
+                <button className="btn btn-primary" onClick={() => {
+                  const blob = new Blob([gitOutput], {type:"text/plain"});
+                  const a = document.createElement("a");
+                  a.href = URL.createObjectURL(blob);
+                  a.download = "push.sh";
+                  a.click();
+                  showToast("DOWNLOADED");
+                }}>⬇ Download push.sh</button>
+                <button className="btn btn-ghost" onClick={() => copyText(gitOutput)}>Copy Script</button>
               </div>
             </div>
 
             <div className="card">
-              <div className="card-title" style={{ marginBottom: 12 }}>
-                // Quick Steps
-              </div>
+              <div className="card-title" style={{marginBottom:12}}>// Quick Steps</div>
               {[
-                ["01", "Save the script as push.sh in your writeup folder"],
-                ["02", "chmod +x push.sh"],
-                ["03", "Replace YOUR_USERNAME with your GitHub handle"],
-                ["04", "Create the repo on GitHub first (no init commit)"],
-                ["05", "./push.sh"],
+                ["01","Save the script as push.sh in your writeup folder"],
+                ["02","chmod +x push.sh"],
+                ["03","Replace YOUR_USERNAME with your GitHub handle"],
+                ["04","Create the repo on GitHub first (no init commit)"],
+                ["05","./push.sh"],
               ].map(([n, t]) => (
-                <div
-                  key={n}
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                    marginBottom: 10,
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      color: "var(--green)",
-                      fontFamily: "var(--font-display)",
-                      fontSize: "10px",
-                      minWidth: 24,
-                      paddingTop: 1,
-                    }}
-                  >
-                    {n}
-                  </span>
-                  <span style={{ fontSize: "12px", color: "var(--text)" }}>
-                    {t}
-                  </span>
+                <div key={n} style={{display:"flex",gap:12,marginBottom:10,alignItems:"flex-start"}}>
+                  <span style={{color:"var(--green)",fontFamily:"var(--font-display)",fontSize:"10px",minWidth:24,paddingTop:1}}>{n}</span>
+                  <span style={{fontSize:"12px",color:"var(--text)"}}>{t}</span>
                 </div>
               ))}
             </div>
